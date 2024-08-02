@@ -2,37 +2,63 @@ package main
 
 import (
 	"fmt"
-	"reflect"
+	"net/http"
+	"os"
 )
 
 func main() {
-	//variables
-	var name string = "Poncio Costa"
-	age := 24
-	versionSystem := 1.0
-	//
-	fmt.Println("Hello World!!	>>> Welcome , Mr", name, "<<<	#Age:", age, " #Programn version:", versionSystem)
-	fmt.Print("var name typeOf: ", reflect.TypeOf(name))
-	fmt.Print(" >> var age typeOf: ", reflect.TypeOf(age))
-	fmt.Print(" >> var version typeOf: ", reflect.TypeOf(versionSystem))
 
-	fmt.Println("\n\n1- Start Monitoring Program")
+	welcomeIntro()
+	for {
+		menuOption()
+		option := readMenuOption()
+
+		switch option {
+		case 1:
+			startMonitoring()
+		case 2:
+			fmt.Println(">>>Logging")
+		case 0:
+			fmt.Println(">>>Ending Program...")
+			os.Exit(0)
+		default:
+			fmt.Println("Invalid Option: ", option)
+			os.Exit(-1)
+		}
+	}
+}
+
+func welcomeIntro() {
+	//variables
+	name := "Poncio Costa"
+	versionSystem := 1.2
+	//
+	fmt.Println("Hello, ", name)
+	fmt.Print(">> Version program: ", versionSystem, " <<")
+}
+
+func menuOption() {
+	fmt.Println("\n<<< MENU OPTIONS >>>")
+	fmt.Println("1- Start Monitoring Program")
 	fmt.Println("2- Show logs")
 	fmt.Println("0- End Program")
+}
 
-	var menu int
-	//fmt.Scanf("%d", &menu)
-	fmt.Scan(&menu)
-	fmt.Println("Menu option selected: ", menu)
+func readMenuOption() int {
+	var optionSelected int
+	fmt.Scan(&optionSelected)
+	fmt.Println("Menu option selected: ", optionSelected)
+	return optionSelected
+}
 
-	//
-	if menu == 1 {
-		println("## Start Monitoring... ##")
-	} else if menu == 2 {
-		println("## Show logs... ##")
-	} else if menu == 0 {
-		println("## End program... ##")
+func startMonitoring() {
+	fmt.Println(">>>Monitoring...")
+	website := "https://www.alura.com.br/"
+	response, _ := http.Get(website)
+
+	if response.StatusCode == 200 {
+		fmt.Println("Website:", website, "was reached! ")
 	} else {
-		fmt.Println("Menu option not found!")
+		fmt.Println("Website:", website, "with problems. Status Code:", response.StatusCode)
 	}
 }
