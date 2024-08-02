@@ -4,7 +4,11 @@ import (
 	"fmt"
 	"net/http"
 	"os"
+	"time"
 )
+
+const monitorRepeat = 5
+const monitorDelayTime = 5
 
 func main() {
 
@@ -48,17 +52,30 @@ func readMenuOption() int {
 	var optionSelected int
 	fmt.Scan(&optionSelected)
 	fmt.Println("Menu option selected: ", optionSelected)
+	fmt.Println("")
 	return optionSelected
 }
 
 func startMonitoring() {
-	fmt.Println(">>>Monitoring...")
-	website := "https://www.alura.com.br/"
-	response, _ := http.Get(website)
+	websites := []string{"https://httpbin.org/status/200", "https://httpbin.org/status/400", "https://httpbin.org/status/500"}
 
+	for i := 0; i < monitorRepeat; i++ {
+		fmt.Println(">>>Monitoring...")
+		for index, website := range websites {
+			fmt.Println("Testing website", index, ":", website)
+			runWebsiteTest(website)
+		}
+		time.Sleep(monitorDelayTime * time.Second)
+		fmt.Println("")
+	}
+	fmt.Println("")
+}
+
+func runWebsiteTest(route string) {
+	response, _ := http.Get(route)
 	if response.StatusCode == 200 {
-		fmt.Println("Website:", website, "was reached! ")
+		fmt.Println("Website:", route, "was reached! Status Code:", response.StatusCode)
 	} else {
-		fmt.Println("Website:", website, "with problems. Status Code:", response.StatusCode)
+		fmt.Println("Website:", route, "with problems. Status Code:", response.StatusCode)
 	}
 }
