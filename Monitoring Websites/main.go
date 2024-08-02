@@ -1,9 +1,12 @@
 package main
 
 import (
+	"bufio"
 	"fmt"
+	"io"
 	"net/http"
 	"os"
+	"strings"
 	"time"
 )
 
@@ -57,11 +60,12 @@ func readMenuOption() int {
 }
 
 func startMonitoring() {
-	websites := []string{"https://httpbin.org/status/200", "https://httpbin.org/status/400", "https://httpbin.org/status/500"}
+	/* websites := []string{"https://httpbin.org/status/200", "https://httpbin.org/status/400", "https://httpbin.org/status/500"} */
+	websites := readWebsitesFromTxt()
 
 	for i := 0; i < monitorRepeat; i++ {
 		fmt.Println(">>>Monitoring...")
-		for index, website := range websites {
+		for index, website := range websites { //Range is a method to read all elements of the collection
 			fmt.Println("Testing website", index, ":", website)
 			runWebsiteTest(website)
 		}
@@ -72,10 +76,36 @@ func startMonitoring() {
 }
 
 func runWebsiteTest(route string) {
-	response, _ := http.Get(route)
+	response, err := http.Get(route)
+	if err != nil {
+		fmt.Println("Error:", err)
+	}
+
 	if response.StatusCode == 200 {
 		fmt.Println("Website:", route, "was reached! Status Code:", response.StatusCode)
 	} else {
 		fmt.Println("Website:", route, "with problems. Status Code:", response.StatusCode)
 	}
+}
+
+func readWebsitesFromTxt() []string {
+	var websites []string
+	//Opening txt file
+	txtWebsiteFile, err := os.Open("websites.txt")
+	if err != nil {
+		fmt.Println("Error:", err)
+	}
+	//Reading txt File
+	txtReader := bufio.NewReader(txtWebsiteFile)
+	for {
+		txtLine, err := txtReader.ReadString('\n') //delimiter caracter
+		txtLine = strings.TrimSpace(txtLine)       //removing spaces and brealines
+		websites = append(websites, txtLine)       //incrementing the slace
+		if err == io.EOF {                         //testing the End Of File
+			break //Exit the looping
+		}
+	}
+	//Cloning File
+	txtWebsiteFile.Close()
+	return websites
 }
